@@ -17,6 +17,6 @@ export class SignUser {
   id: string;
   username?: string;
   email?: string;
-  password: string;
+  password?: string;
   role: Role;
 }

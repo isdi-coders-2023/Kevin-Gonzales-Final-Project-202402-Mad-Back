@@ -13,7 +13,6 @@ import {
   Post,
   Delete,
   ForbiddenException,
-  BadRequestException,
 } from '@nestjs/common';
 import { CryptoService } from '../core/crypto/crypto.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -21,7 +20,7 @@ import { FilesService } from '../core/files/files.service';
 import { ImgData } from '../types/image.data';
 import { UpdateUserDto, CreateUserDto } from './entities/user.dto';
 import { UsersService } from './users.service';
-import { LoggedGuard } from '../core/auth/logged/logged.guard';
+import { LoggedGuard } from '../core/auth/logged.guard';
 
 @Controller('users')
 export class UsersController {
@@ -56,7 +55,8 @@ export class UsersController {
     )
     file: Express.Multer.File,
   ) {
-    const email = data.email || (await this.usersService.findOneUser(id)).email;
+    const user = await this.usersService.findOneUser(id);
+    const email = data.email || user.email;
     let avatar: ImgData | null = null;
 
     if (file) {
@@ -78,36 +78,36 @@ export class UsersController {
         bytes: cloudinaryResponse.bytes,
       };
     }
-    if (data.password) {
-      data.password = await this.cryptoService.hash(data.password);
-    }
-    return this.usersService.updateUser(id, data, avatar);
+
+    const result = await this.usersService.updateUser(id, data, avatar);
+    return result;
   }
 
+  @UseGuards(LoggedGuard)
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.usersService.deleteUser(id);
   }
 
-  // @UseGuards(LoggedGuard)
-  // @Patch('login')
-  // async loginWithToken(@Body() validData: { payload: { id: string } }) {
-  //   const userId = validData.payload.id;
-  //   const user = await this.usersService.findOneUser(userId);
-  //   if (!user) {
-  //     throw new ForbiddenException('Email and password invalid');
-  //   }
+  @UseGuards(LoggedGuard)
+  @Get('login')
+  async loginWithToken(@Body() validData: { payload: { id: string } }) {
+    const userId = validData.payload.id;
+    const user = await this.usersService.findOneUser(userId);
+    if (!user) {
+      throw new ForbiddenException('Email and password invalid');
+    }
 
-  //   return {
-  //     token: await this.cryptoService.createToken(user),
-  //   };
-  // }
+    return {
+      token: await this.cryptoService.createToken(user),
+    };
+  }
 
   @Post('login')
-  async login(@Body() createUserDto: CreateUserDto) {
-    const { email, password } = createUserDto;
+  async login(@Body() data: CreateUserDto) {
+    const { email, password } = data;
     if (!email || !password) {
-      throw new BadRequestException('Email and password are required');
+      throw new ForbiddenException('Email and password invalid');
     }
 
     const user = await this.usersService.findForLogin(email);
@@ -116,7 +116,7 @@ export class UsersController {
       throw new ForbiddenException('Email and password invalid');
     }
 
-    if (!(await this.cryptoService.compare(password, user.password!))) {
+    if (!(await this.cryptoService.compare(password, user.password))) {
       throw new ForbiddenException('Email and password invalid');
     }
 

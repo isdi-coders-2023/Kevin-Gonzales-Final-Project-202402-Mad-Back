@@ -1,4 +1,4 @@
-import { ExecutionContext, Logger } from '@nestjs/common';
+import { ExecutionContext } from '@nestjs/common';
 import { CryptoService } from 'src/core/crypto/crypto.service';
 import { LoggedGuard } from './logged.guard';
 
@@ -6,13 +6,8 @@ const cryptoServiceMock: CryptoService = {
   verifyToken: jest.fn().mockResolvedValue({}),
 } as unknown as CryptoService;
 
-const mockLogger: Logger = {
-  log: jest.fn(),
-  debug: jest.fn(),
-} as unknown as Logger;
-
 describe('LoggedGuard', () => {
-  const loggedGuard = new LoggedGuard(mockLogger, cryptoServiceMock);
+  const loggedGuard = new LoggedGuard(cryptoServiceMock);
   it('should be defined', () => {
     expect(loggedGuard).toBeDefined();
   });

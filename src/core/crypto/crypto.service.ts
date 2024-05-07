@@ -11,8 +11,10 @@ export type TokenPayload = {
 
 @Injectable()
 export class CryptoService {
-  private readonly jwtService: JwtService;
-  private readonly configService: ConfigService;
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async hash(value: string) {
     return hash(value, 10);
@@ -24,17 +26,15 @@ export class CryptoService {
 
   async createToken({ id, role }: User | SignUser) {
     const payload: TokenPayload = { id, role };
-    console.log('payload', payload);
     const token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_SECRET'),
     });
-    console.log('token', token);
     return token;
   }
 
   async verifyToken(token: string) {
     return this.jwtService.verifyAsync<TokenPayload>(token, {
-      secret: this.configService.get('SECRET_JWT'),
+      secret: this.configService.get('JWT_SECRET'),
     });
   }
 }

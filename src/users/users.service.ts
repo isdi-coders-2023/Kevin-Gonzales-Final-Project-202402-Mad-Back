@@ -22,34 +22,6 @@ const select = {
   },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const selectFull = {
-  username: true,
-  email: true,
-  birthday: true,
-  clubs: {
-    select: {
-      name: true,
-      country: true,
-    },
-  },
-  avatar: {
-    select: {
-      publicId: true,
-      folder: true,
-      fieldName: true,
-      originalName: true,
-      secureUrl: true,
-      resourceType: true,
-      mimetype: true,
-      format: true,
-      height: true,
-      width: true,
-      bytes: true,
-    },
-  },
-};
-
 @Injectable()
 export class UsersService {
   constructor(
@@ -61,7 +33,7 @@ export class UsersService {
     return await this.prismaService.user.findMany({ select });
   }
 
-  async findOneUser(id: string) {
+  async findOneUser(id: string): Promise<User> {
     const data = this.prismaService.user.findUnique({ where: { id } });
     if (!data) {
       throw await new NotFoundException(`User ${id} not founded`);
@@ -69,11 +41,15 @@ export class UsersService {
     return data;
   }
 
-  async createUser(data: CreateUserDto) {
+  async createUser(data: CreateUserDto): Promise<User> {
     return this.prismaService.user.create({ data });
   }
 
-  async updateUser(id: string, data: UpdateUserDto, imgData: ImgData | null) {
+  async updateUser(
+    id: string,
+    data: UpdateUserDto,
+    imgData: ImgData | null,
+  ): Promise<User> {
     try {
       return await this.prismaService.user.update({
         where: { id },
@@ -95,14 +71,13 @@ export class UsersService {
     }
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(id: string): Promise<User> {
     try {
       const deleteAvatar = this.prismaService.avatar.delete({
         where: { userId: id },
       });
       const deleteUser = this.prismaService.user.delete({
         where: { id },
-        select,
       });
       const transaction = await this.prismaService.$transaction([
         deleteAvatar,

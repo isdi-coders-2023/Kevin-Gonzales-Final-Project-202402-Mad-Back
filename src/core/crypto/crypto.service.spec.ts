@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CryptoService, TokenPayload } from './crypto.service';
+import { CryptoService } from './crypto.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Logger } from '@nestjs/common';
@@ -27,7 +27,6 @@ describe('CryptoService', () => {
       providers: [
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: Logger, useValue: { log: jest.fn() } },
         CryptoService,
         Logger,
       ],
@@ -55,28 +54,24 @@ describe('CryptoService', () => {
       expect(result).toBe(true);
     });
   });
-  describe('When we use createToken method', () => {
-    it('should create a token', async () => {
-      const fakePayload: TokenPayload = { id: 'id', role: 'role' };
-      const fakeToken = await mockJwtService.signAsync(fakePayload as SignUser);
-      expect(fakeToken).toBeTruthy();
-    });
 
-    it('should return a error with invalid payload', async () => {
-      const fakePayload = { id: 'id' };
-      expect(service.createToken(fakePayload as SignUser)).rejects.toThrow();
-    });
-
-    it('should return a error with invalid secret', async () => {
-      const fakePayload = { id: 'id', role: 'role' };
-      mockConfigService.get = jest.fn().mockRejectedValue(new Error('Error'));
-      expect(service.createToken(fakePayload as SignUser)).rejects.toThrow();
+  describe('When we call createToken method', () => {
+    it('should return a token', async () => {
+      const user = { id: '1', role: 'admin' } as SignUser;
+      const result = await service.createToken(user);
+      expect(mockJwtService.signAsync).toHaveBeenCalledWith(
+        { id: '1', role: 'admin' },
+        { secret: 'SECRET_JWT' },
+      );
+      expect(result).toBe('token');
     });
   });
 
-  describe('When we use verifyToken method', () => {
-    it('should verify a token', async () => {
-      const result = await mockJwtService.verifyAsync<TokenPayload>('token', {
+  describe('When we call verifyToken method', () => {
+    it('should return a verificated token', async () => {
+      const token = 'token';
+      const result = await service.verifyToken(token);
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(token, {
         secret: 'SECRET_JWT',
       });
       expect(result).toEqual({});

@@ -82,7 +82,7 @@
       "dto",
       "interface"
     ],
-    "coverageDirectory": "./coverage",
+    "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   }
 }
