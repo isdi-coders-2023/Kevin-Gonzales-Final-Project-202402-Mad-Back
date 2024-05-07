@@ -8,5 +8,5 @@ export class Club {
   country: string;
   founded: number;
   state: State;
-  users: Array<User>;
+  fans: Array<User>;
 }

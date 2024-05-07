@@ -1,5 +1,4 @@
 import {
-  IsDateString,
   IsEmail,
   IsOptional,
   IsString,
@@ -15,14 +14,10 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
   @MinLength(6, {
-    message: 'Title is too short. Remember: min 6.',
+    message: 'Title is too short. Remember: min 8.',
   })
-  @IsStrongPassword()
+  @IsString()
   password: string;
-  @IsDateString()
-  birthday: string;
-  @IsOptional()
-  avatar: string;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
@@ -35,10 +30,4 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsStrongPassword()
   @IsOptional()
   password?: string;
-  @IsDateString()
-  @IsOptional()
-  birthday: string;
-  @IsString()
-  @IsOptional()
-  avatar: string;
 }

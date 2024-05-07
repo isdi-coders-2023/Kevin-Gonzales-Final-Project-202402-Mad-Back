@@ -34,11 +34,30 @@ model User{
   username        String @unique
   email           String @unique
   password        String
-  birthday        DateTime
+  avatar          Avatar?
   role            Role @default(user)
   clubs           Club[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now())
+}
+
+model Avatar {
+  id           String   @id @default(cuid())
+  publicId     String
+  folder       String
+  fieldName    String
+  originalName String
+  secureUrl    String
+  resourceType String
+  mimetype     String
+  format       String
+  width        Int
+  height       Int
+  bytes        Int
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
 }
 
 enum Role{
