@@ -6,6 +6,7 @@ import { ClubsModule } from './clubs/clubs.module';
 import { CoreModule } from './core/core.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
+import { CountriesService } from './countries/countries.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CountriesService],
 })
 export class AppModule {}
