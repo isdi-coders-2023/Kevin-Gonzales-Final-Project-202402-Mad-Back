@@ -89,9 +89,12 @@ export class UsersService {
     }
   }
 
-  async findForLogin(email: string): Promise<SignUser | null> {
+  async findForLogin(
+    email: string,
+    username: string,
+  ): Promise<SignUser | null> {
     const result = await this.prismaService.user.findUnique({
-      where: { email },
+      where: { email, username },
       select: {
         id: true,
         password: true,
