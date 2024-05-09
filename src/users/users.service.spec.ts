@@ -102,7 +102,7 @@ describe('UsersService', () => {
 
     describe('When we use the method findForLogin', () => {
       it('should return a user', async () => {
-        const result = await service.findForLogin('');
+        const result = await service.findForLogin('email', 'password');
         expect(result).toEqual({});
       });
     });
