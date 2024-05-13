@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './entities/user.dto';
 import { ImgData } from 'src/types/image.data';
@@ -9,6 +9,7 @@ const select = {
   username: true,
   email: true,
   role: true,
+  country: true,
   clubs: {
     select: {
       name: true,
@@ -22,27 +23,55 @@ const select = {
   },
 };
 
+const selectFull = {
+  id: true,
+  username: true,
+  email: true,
+  role: true,
+  country: true,
+  clubs: {
+    select: {
+      name: true,
+      country: true,
+    },
+  },
+  avatar: {
+    select: {
+      publicId: true,
+      secureUrl: true,
+      width: true,
+      height: true,
+    },
+  },
+  createdAt: true,
+  updatedAt: true,
+};
+
 @Injectable()
 export class UsersService {
-  constructor(
-    private prismaService: PrismaService,
-    private readonly logger: Logger,
-  ) {}
+  constructor(private prismaService: PrismaService) {}
 
   async findAllUsers(): Promise<User[]> {
     return await this.prismaService.user.findMany({ select });
   }
 
   async findOneUser(id: string): Promise<User> {
-    const data = this.prismaService.user.findUnique({ where: { id } });
+    const data = this.prismaService.user.findUnique({
+      where: { id },
+      select: selectFull,
+    });
     if (!data) {
       throw await new NotFoundException(`User ${id} not founded`);
     }
     return data;
   }
 
-  async createUser(data: CreateUserDto): Promise<User> {
-    return this.prismaService.user.create({ data });
+  async createUser(data: CreateUserDto) {
+    try {
+      return this.prismaService.user.create({ data }) as unknown as User;
+    } catch (error) {
+      throw await new NotFoundException(`Data invalid. Try again.`);
+    }
   }
 
   async updateUser(
@@ -67,26 +96,30 @@ export class UsersService {
         select,
       });
     } catch (error) {
+      console.log('avatar', imgData);
       throw await new NotFoundException(`User ${id} not found`);
     }
   }
 
-  async deleteUser(id: string): Promise<User> {
-    try {
-      const deleteAvatar = this.prismaService.avatar.delete({
-        where: { userId: id },
-      });
-      const deleteUser = this.prismaService.user.delete({
-        where: { id },
-      });
-      const transaction = await this.prismaService.$transaction([
-        deleteAvatar,
-        deleteUser,
-      ]);
-      return transaction[1];
-    } catch (error) {
+  async deleteUser(id: string) {
+    const errasedUser = (await this.prismaService.user.findUnique({
+      where: { id },
+    })) as unknown as User;
+
+    if (!errasedUser) {
       throw new NotFoundException(`User ${id} not found`);
     }
+
+    if (errasedUser.avatar === null || errasedUser.avatar === undefined) {
+      return await this.prismaService.user.delete({ where: { id } });
+    }
+
+    const deleteAvatar = this.prismaService.avatar.delete({
+      where: { userId: id },
+    });
+    const deleteUser = this.prismaService.user.delete({ where: { id } });
+
+    return await this.prismaService.$transaction([deleteAvatar, deleteUser]);
   }
 
   async findForLogin(

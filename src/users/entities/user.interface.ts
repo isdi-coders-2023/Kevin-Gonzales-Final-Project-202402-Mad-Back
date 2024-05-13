@@ -8,7 +8,8 @@ export class User {
   username: string;
   email: string;
   password?: string;
-  avatar?: Partial<ImgData> | null;
+  country?: string;
+  avatar: Partial<ImgData> | null;
   role?: Role;
   clubs?: Array<Partial<Club>>;
 }
@@ -18,5 +19,6 @@ export class SignUser {
   username?: string;
   email?: string;
   password?: string;
+  country?: string;
   role: Role;
 }
