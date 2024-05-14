@@ -33,4 +33,6 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsString()
   @IsOptional()
   country?: string;
+  @IsOptional()
+  role: 'admin' | 'validator' | 'user';
 }

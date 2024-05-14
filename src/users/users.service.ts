@@ -111,9 +111,12 @@ export class UsersService {
     }
 
     if (errasedUser.avatar === null || errasedUser.avatar === undefined) {
+      console.log('Without avatar');
+      console.log(errasedUser.avatar);
       return await this.prismaService.user.delete({ where: { id } });
     }
-
+    console.log('With avatar');
+    console.log(errasedUser.avatar);
     const deleteAvatar = this.prismaService.avatar.delete({
       where: { userId: id },
     });

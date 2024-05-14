@@ -10,7 +10,7 @@ export class User {
   password?: string;
   country?: string;
   avatar: Partial<ImgData> | null;
-  role?: Role;
+  role: Role;
   clubs?: Array<Partial<Club>>;
 }
 

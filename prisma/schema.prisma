@@ -36,7 +36,6 @@ model User{
   password        String
   country         String?
   avatar          Avatar?
-  birthday        DateTime?
   role            Role @default(user)
   clubs           Club[]
   createdAt       DateTime @default(now())
