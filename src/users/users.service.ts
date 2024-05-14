@@ -96,7 +96,7 @@ export class UsersService {
         select,
       });
     } catch (error) {
-      console.log('avatar', imgData);
+      console.log(error.message);
       throw await new NotFoundException(`User ${id} not found`);
     }
   }
