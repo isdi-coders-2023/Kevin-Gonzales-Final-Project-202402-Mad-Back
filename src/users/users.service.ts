@@ -96,7 +96,6 @@ export class UsersService {
         select,
       });
     } catch (error) {
-      console.log(error.message);
       throw await new NotFoundException(`User ${id} not found`);
     }
   }
@@ -111,12 +110,8 @@ export class UsersService {
     }
 
     if (errasedUser.avatar === null || errasedUser.avatar === undefined) {
-      console.log('Without avatar');
-      console.log(errasedUser.avatar);
       return await this.prismaService.user.delete({ where: { id } });
     }
-    console.log('With avatar');
-    console.log(errasedUser.avatar);
     const deleteAvatar = this.prismaService.avatar.delete({
       where: { userId: id },
     });
@@ -125,10 +120,7 @@ export class UsersService {
     return await this.prismaService.$transaction([deleteAvatar, deleteUser]);
   }
 
-  async findForLogin(
-    email: string,
-    username: string,
-  ): Promise<SignUser | null> {
+  async findForLogin(email: string, username: string): Promise<SignUser> {
     const result = await this.prismaService.user.findUnique({
       where: { email, username },
       select: {

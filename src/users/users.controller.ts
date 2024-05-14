@@ -109,7 +109,6 @@ export class UsersController {
   @Post('login')
   async login(@Body() data: CreateUserDto) {
     const { username, email, password } = data;
-    console.log(data);
     if (!password || (!username && !email)) {
       throw new ForbiddenException('Email and password invalid');
     }
@@ -130,9 +129,7 @@ export class UsersController {
   @Post('register')
   async create(@Body() data: CreateUserDto) {
     try {
-      console.log(data);
       data.password = await this.cryptoService.hash(data.password);
-      console.log(data.password);
       return this.usersService.createUser(data);
     } catch (error) {
       throw new ForbiddenException('Data invalid');
