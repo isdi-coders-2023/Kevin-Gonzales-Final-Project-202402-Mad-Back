@@ -103,6 +103,7 @@ export class UsersService {
   async deleteUser(id: string) {
     const errasedUser = (await this.prismaService.user.findUnique({
       where: { id },
+      select,
     })) as unknown as User;
 
     if (!errasedUser) {
