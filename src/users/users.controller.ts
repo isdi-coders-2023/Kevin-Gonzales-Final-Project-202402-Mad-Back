@@ -1,6 +1,5 @@
 import {
   Controller,
-  Logger,
   Get,
   Param,
   UseGuards,
@@ -13,6 +12,8 @@ import {
   Post,
   Delete,
   ForbiddenException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CryptoService } from '../core/crypto/crypto.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -22,10 +23,10 @@ import { UpdateUserDto, CreateUserDto } from './entities/user.dto';
 import { UsersService } from './users.service';
 import { LoggedGuard } from '../core/auth/logged.guard';
 
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @Controller('users')
 export class UsersController {
   constructor(
-    private readonly logger: Logger,
     private readonly usersService: UsersService,
     private readonly cryptoService: CryptoService,
     private readonly filesService: FilesService,
@@ -55,8 +56,7 @@ export class UsersController {
     )
     file: Express.Multer.File,
   ) {
-    const user = await this.usersService.findOneUser(id);
-    const email = data.email || user.email;
+    const email = data.email || (await this.usersService.findOneUser(id)).email;
     let avatar: ImgData | null = null;
 
     if (file) {
@@ -79,8 +79,11 @@ export class UsersController {
       };
     }
 
-    const result = await this.usersService.updateUser(id, data, avatar);
-    return result;
+    if (data.password) {
+      data.password = await this.cryptoService.hash(data.password);
+    }
+
+    return this.usersService.updateUser(id, data, avatar);
   }
 
   @UseGuards(LoggedGuard)
@@ -106,7 +109,6 @@ export class UsersController {
   @Post('login')
   async login(@Body() data: CreateUserDto) {
     const { username, email, password } = data;
-    console.log(data);
     if (!password || (!username && !email)) {
       throw new ForbiddenException('Email and password invalid');
     }
@@ -126,9 +128,11 @@ export class UsersController {
 
   @Post('register')
   async create(@Body() data: CreateUserDto) {
-    console.log(data);
-    data.password = await this.cryptoService.hash(data.password);
-    console.log(data.password);
-    return this.usersService.createUser(data);
+    try {
+      data.password = await this.cryptoService.hash(data.password);
+      return this.usersService.createUser(data);
+    } catch (error) {
+      throw new ForbiddenException('Data invalid');
+    }
   }
 }

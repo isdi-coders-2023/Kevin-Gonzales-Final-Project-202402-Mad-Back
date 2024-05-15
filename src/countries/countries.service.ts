@@ -12,8 +12,6 @@ export class CountriesService {
       const countries = await response.json();
       return countries;
     } catch (error) {
-      console.log(error);
-      console.log('error', error.message);
       return [];
     }
   }
@@ -26,8 +24,6 @@ export class CountriesService {
       const country = await response.json();
       return country;
     } catch (error) {
-      console.log(error);
-      console.log('error', error.message);
       return null;
     }
   }
@@ -40,8 +36,6 @@ export class CountriesService {
       const country = await response.json();
       return country[0].flags[0];
     } catch (error) {
-      console.log(error);
-      console.log('error', error.message);
       return null;
     }
   }
