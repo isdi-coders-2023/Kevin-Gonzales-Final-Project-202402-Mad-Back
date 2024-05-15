@@ -20,6 +20,7 @@ model Club {
   founded         Int
   state           StateClub @default(pending)
   logo            Logo?
+  description     String?
   fans            User[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now())
