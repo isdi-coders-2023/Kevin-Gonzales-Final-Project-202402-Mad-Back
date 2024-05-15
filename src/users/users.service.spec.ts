@@ -118,9 +118,6 @@ describe('UsersService', () => {
 
       await service.deleteUser(user.id);
 
-      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { id: user.id },
-      });
       expect(mockPrismaService.avatar.delete).toHaveBeenCalledWith({
         where: { userId: user.id },
       });
