@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateClubDto } from './entities/club.dto';
 import { Club } from './entities/club.interface';
 import { ImgData } from 'src/types/image.data';

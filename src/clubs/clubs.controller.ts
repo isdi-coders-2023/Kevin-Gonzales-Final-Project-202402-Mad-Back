@@ -14,12 +14,12 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { FilesService } from 'src/core/files/files.service';
+import { FilesService } from '../core/files/files.service';
 import { ClubsService } from './clubs.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImgData } from 'src/types/image.data';
 import { UpdateClubDto } from './entities/club.dto';
-import { LoggedGuard } from 'src/core/auth/logged.guard';
+import { LoggedGuard } from '../core/auth/logged.guard';
 
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @Controller('clubs')
@@ -93,25 +93,6 @@ export class ClubsController {
   ) {
     const { name } = data;
     let logo: ImgData | null = null;
-    if (file) {
-      const cloudinaryResponse = await this.filesService.uploadImage(
-        name,
-        file,
-      );
-      logo = {
-        publicId: cloudinaryResponse.public_id,
-        folder: cloudinaryResponse.folder,
-        fieldName: file.fieldname,
-        originalName: file.originalname,
-        secureUrl: cloudinaryResponse.secure_url,
-        resourceType: cloudinaryResponse.resource_type,
-        mimetype: file.mimetype,
-        format: cloudinaryResponse.format,
-        width: cloudinaryResponse.width,
-        height: cloudinaryResponse.height,
-        bytes: cloudinaryResponse.bytes,
-      };
-    }
 
     if (file) {
       const cloudinaryResponse = await this.filesService.uploadImage(

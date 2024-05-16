@@ -80,7 +80,8 @@
       "main",
       "module",
       "dto",
-      "interface"
+      "interface",
+      "countries"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
