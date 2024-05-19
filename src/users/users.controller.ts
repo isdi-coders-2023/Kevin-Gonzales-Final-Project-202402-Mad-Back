@@ -48,7 +48,6 @@ export class UsersController {
 
   @Get('filter')
   filterCountry(@Body() data: FilterUserDto) {
-    console.log(data);
     return this.usersService.filterUsers(data);
   }
 

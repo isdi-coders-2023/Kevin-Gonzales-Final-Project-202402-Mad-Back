@@ -15,8 +15,6 @@ export class FilesService {
       overwrite: true,
     };
 
-    // const finalPath = file.destination + '/' + file.filename;
-    // const result = await v2.uploader.upload(finalPath, options);
     return new Promise((resolve, reject) => {
       v2.uploader
         .upload_stream(options, (error, result) => {
