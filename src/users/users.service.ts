@@ -61,14 +61,14 @@ export class UsersService {
   }
 
   async findOneUser(id: string): Promise<User> {
-    const data = this.prismaService.user.findUnique({
-      where: { id },
-      select: selectFull,
-    });
-    if (!data) {
+    try {
+      return this.prismaService.user.findUnique({
+        where: { id },
+        select: selectFull,
+      });
+    } catch (error) {
       throw new NotFoundException(`User ${id} not founded`);
     }
-    return data;
   }
 
   async filterUsers(data: FilterUserDto): Promise<User[]> {
@@ -78,7 +78,7 @@ export class UsersService {
     });
   }
 
-  async createUser(data: CreateUserDto) {
+  async createUser(data: CreateUserDto): Promise<User> {
     try {
       return this.prismaService.user.create({ data }) as unknown as User;
     } catch (error) {
@@ -91,17 +91,6 @@ export class UsersService {
     data: UpdateUserDto,
     imgData: ImgData | null,
   ): Promise<User> {
-    // const userUpdate = await this.prismaService.user.findUnique({
-    //   where: { id },
-    //   select: {
-    //     avatar: {
-    //       select: {
-    //         publicId: true,
-    //       },
-    //     },
-    //   },
-    // });
-
     try {
       return await this.prismaService.user.update({
         where: { id },

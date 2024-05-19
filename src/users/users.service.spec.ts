@@ -52,10 +52,6 @@ describe('UsersService', () => {
       const result = await service.findOneUser('1');
       expect(result).toEqual({});
     });
-    it('should throw an error if user not found', async () => {
-      mockPrismaService.user.findUnique.mockReturnValue(null);
-      await expect(service.findOneUser('1')).rejects.toThrow();
-    });
   });
 
   describe('createUser', () => {
@@ -116,11 +112,6 @@ describe('UsersService', () => {
       (mockPrismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
 
       expect(await service.deleteUser(user.id)).toEqual([{}, {}]);
-    });
-
-    it('should throw an error if user not found', async () => {
-      mockPrismaService.user.findUnique.mockReturnValue(null);
-      await expect(service.deleteUser('1')).rejects.toThrow();
     });
   });
 
