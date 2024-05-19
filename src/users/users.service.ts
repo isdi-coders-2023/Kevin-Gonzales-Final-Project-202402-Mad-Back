@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto, UpdateUserDto } from './entities/user.dto';
+import {
+  CreateUserDto,
+  FilterUserDto,
+  UpdateUserDto,
+} from './entities/user.dto';
 import { ImgData } from 'src/types/image.data';
 import { SignUser, User } from './entities/user.interface';
 
@@ -66,6 +70,13 @@ export class UsersService {
     return data;
   }
 
+  async filterUsers(data: FilterUserDto): Promise<User[]> {
+    return await this.prismaService.user.findMany({
+      where: { ...data },
+      select,
+    });
+  }
+
   async createUser(data: CreateUserDto) {
     try {
       return this.prismaService.user.create({ data }) as unknown as User;
@@ -79,6 +90,17 @@ export class UsersService {
     data: UpdateUserDto,
     imgData: ImgData | null,
   ): Promise<User> {
+    // const userUpdate = await this.prismaService.user.findUnique({
+    //   where: { id },
+    //   select: {
+    //     avatar: {
+    //       select: {
+    //         publicId: true,
+    //       },
+    //     },
+    //   },
+    // });
+
     try {
       return await this.prismaService.user.update({
         where: { id },
@@ -101,16 +123,15 @@ export class UsersService {
   }
 
   async deleteUser(id: string) {
-    const errasedUser = (await this.prismaService.user.findUnique({
+    const errasedUser = await this.prismaService.user.findUnique({
       where: { id },
       select,
-    })) as unknown as User;
-
+    });
     if (!errasedUser) {
       throw new NotFoundException(`User ${id} not found`);
     }
 
-    if (errasedUser.avatar === null || errasedUser.avatar === undefined) {
+    if (errasedUser.avatar === null) {
       return await this.prismaService.user.delete({ where: { id } });
     }
     const deleteAvatar = this.prismaService.avatar.delete({

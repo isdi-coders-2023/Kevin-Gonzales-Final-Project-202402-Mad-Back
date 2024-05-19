@@ -18,7 +18,7 @@ import { FilesService } from '../core/files/files.service';
 import { ClubsService } from './clubs.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImgData } from 'src/types/image.data';
-import { UpdateClubDto } from './entities/club.dto';
+import { CreateClubDto, UpdateClubDto } from './entities/club.dto';
 import { LoggedGuard } from '../core/auth/logged.guard';
 
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
@@ -82,7 +82,7 @@ export class ClubsController {
   @UseInterceptors(FileInterceptor('logo'))
   @Post('create')
   async create(
-    @Body() data: UpdateClubDto,
+    @Body() data: CreateClubDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [new FileTypeValidator({ fileType: 'image/' })],

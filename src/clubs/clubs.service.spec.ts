@@ -4,6 +4,7 @@ import { CreateClubDto } from './entities/club.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoggedGuard } from '../core/auth/logged.guard';
 import { NotFoundException } from '@nestjs/common';
+import { ImgData } from 'src/types/image.data';
 
 const mockPrismaService = {
   club: {
@@ -57,24 +58,49 @@ describe('ClubsService', () => {
   });
 
   describe('createClub', () => {
-    it('should create a club', async () => {
-      const club = await service.createClub({} as CreateClubDto, null);
-      expect(club).toEqual({});
+    describe('when we create a club', () => {
+      it('without logo', async () => {
+        const club = await service.createClub({} as CreateClubDto, null);
+        expect(club).toEqual({});
+      });
+      it('with logo', async () => {
+        const club = await service.createClub(
+          {} as CreateClubDto,
+          {} as ImgData,
+        );
+        expect(club).toEqual({});
+      });
     });
   });
 
   describe('updateClub', () => {
-    it('should update a club', async () => {
-      const club = await service.updateClub('1', {} as CreateClubDto, null);
-      expect(club).toEqual({});
+    describe('when we update a club', () => {
+      it('without logo', async () => {
+        const club = await service.updateClub('1', {} as CreateClubDto, null);
+        expect(club).toEqual({});
+      });
+      it('with logo', async () => {
+        const club = await service.updateClub(
+          '1',
+          {} as CreateClubDto,
+          {} as ImgData,
+        );
+        expect(club).toEqual({});
+      });
     });
   });
 
   describe('deleteClub', () => {
+    const errasedClub = { id: '1' };
     it('should delete a club', async () => {
-      await service.deleteClub('1');
+      await service.deleteClub(errasedClub.id);
       expect(mockPrismaService.club.delete).toHaveBeenCalled();
     });
-    it('should return an error if the club does not exist', async () => {});
+    it('should return a error if club not found', async () => {
+      mockPrismaService.club.findUnique = jest.fn(() => null);
+      await expect(service.deleteClub(errasedClub.id)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 });

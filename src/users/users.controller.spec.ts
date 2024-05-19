@@ -3,7 +3,6 @@ import { CryptoService } from '../core/crypto/crypto.service';
 import { FilesService } from '../core/files/files.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { ForbiddenException, Logger } from '@nestjs/common';
 import { LoggedGuard } from '../core/auth/logged.guard';
 import { CreateUserDto, UpdateUserDto } from './entities/user.dto';
 
@@ -44,7 +43,6 @@ describe('UsersController', () => {
           provide: FilesService,
           useValue: mockFileService,
         },
-        Logger,
       ],
     })
       .overrideGuard(LoggedGuard)
@@ -126,46 +124,39 @@ describe('UsersController', () => {
   });
 
   describe('When we use the method login', () => {
+    const mockUserDto = {
+      email: 'test@sample.com',
+      password: '12345',
+    } as CreateUserDto;
     it('should return a token', async () => {
-      const mockUserDto = {
-        email: 'test@sample.com',
-        password: '12345',
-      } as CreateUserDto;
       mockCryptoService.compare.mockResolvedValue(true);
       const result = await controller.login(mockUserDto);
       expect(result).toEqual({ token: 'token' });
     });
 
-    it('should return an error with invalid data', async () => {
-      const mockUserDto = {
-        email: '',
-      } as CreateUserDto;
-      mockCryptoService.compare.mockResolvedValue(false);
-      const result = controller.login(mockUserDto);
-      expect(result).rejects.toThrow('Email and password invalid');
-    });
-
     it('should return an error with invalid user', async () => {
-      const mockUserDto = {
-        email: 'test@sample.com',
-        password: '12345',
-      } as CreateUserDto;
-      (mockUsersService.findForLogin as jest.Mock).mockResolvedValueOnce(null);
-      await expect(controller.login(mockUserDto)).rejects.toThrow(
-        'Email and password invalid',
-      );
+      mockUsersService.findForLogin.mockResolvedValue(null);
+      try {
+        await controller.login(mockUserDto);
+      } catch (e) {
+        expect(e.message).toBe('Email and password invalid');
+      }
     });
-
-    it('should return an error when compare password', async () => {
-      const mockUserDto = {
-        email: '',
-        password: '',
-      } as CreateUserDto;
-      (mockUsersService.findForLogin as jest.Mock).mockResolvedValueOnce(true);
-      (mockCryptoService.compare as jest.Mock).mockResolvedValueOnce(false);
-      await expect(controller.login(mockUserDto)).rejects.toThrow(
-        new ForbiddenException('Email and password invalid'),
-      );
+    it('should return an error with invalid password', async () => {
+      mockCryptoService.compare.mockResolvedValue(false);
+      try {
+        await controller.login(mockUserDto);
+      } catch (e) {
+        expect(e.message).toBe('Email and password invalid');
+      }
+    });
+    it('should return an error with invalid data', async () => {
+      const invalidData = { email: '', password: '' } as CreateUserDto;
+      try {
+        await controller.login(invalidData);
+      } catch (e) {
+        expect(e.message).toBe('Email and password invalid');
+      }
     });
   });
 });

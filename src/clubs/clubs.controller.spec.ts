@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ClubsService } from './clubs.service';
 import { FilesService } from '../core/files/files.service';
-import { UpdateClubDto } from './entities/club.dto';
+import { CreateClubDto, UpdateClubDto } from './entities/club.dto';
 
 const mockGuard = {};
 
@@ -18,7 +18,7 @@ const mockClubService = {
 };
 
 const mockFileService = {
-  uploadImage: jest.fn().mockResolvedValue([]),
+  uploadImage: jest.fn().mockResolvedValue({}),
 };
 
 describe('ClubsController', () => {
@@ -33,7 +33,6 @@ describe('ClubsController', () => {
         CryptoService,
         JwtService,
         ConfigService,
-        FilesService,
       ],
       imports: [],
     })
@@ -68,13 +67,30 @@ describe('ClubsController', () => {
         const club = await controller.update('1', {} as UpdateClubDto, null);
         expect(club).toEqual([]);
       });
+      it('with logo', async () => {
+        const club = await controller.update(
+          '1',
+          {} as UpdateClubDto,
+          {} as Express.Multer.File,
+        );
+        expect(club).toEqual([]);
+      });
     });
   });
 
   describe('create', () => {
-    it('should create a club', async () => {
-      const club = await controller.create({} as UpdateClubDto, null);
-      expect(club).toEqual([]);
+    describe('should create a club', () => {
+      it('without logo', async () => {
+        const club = await controller.create({} as CreateClubDto, null);
+        expect(club).toEqual([]);
+      });
+      it('with logo', async () => {
+        const club = await controller.create(
+          {} as CreateClubDto,
+          {} as Express.Multer.File,
+        );
+        expect(club).toEqual([]);
+      });
     });
   });
 

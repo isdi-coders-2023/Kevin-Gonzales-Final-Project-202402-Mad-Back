@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateClubDto } from './entities/club.dto';
+import { CreateClubDto, UpdateClubDto } from './entities/club.dto';
 import { Club } from './entities/club.interface';
 import { ImgData } from 'src/types/image.data';
 
@@ -14,6 +14,7 @@ const select = {
   logo: {
     select: {
       publicId: true,
+      secureUrl: true,
     },
   },
   fans: {
@@ -79,7 +80,7 @@ export class ClubsService {
 
   async updateClub(
     id: string,
-    data: CreateClubDto,
+    data: UpdateClubDto,
     imgData: ImgData | null,
   ): Promise<Club> {
     return this.prismaService.club.update({
