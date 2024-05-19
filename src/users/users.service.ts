@@ -91,17 +91,6 @@ export class UsersService {
     data: UpdateUserDto,
     imgData: ImgData | null,
   ): Promise<User> {
-    // const userUpdate = await this.prismaService.user.findUnique({
-    //   where: { id },
-    //   select: {
-    //     avatar: {
-    //       select: {
-    //         publicId: true,
-    //       },
-    //     },
-    //   },
-    // });
-
     try {
       return await this.prismaService.user.update({
         where: { id },
