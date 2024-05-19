@@ -23,6 +23,7 @@ const select = {
   avatar: {
     select: {
       publicId: true,
+      secureUrl: true,
     },
   },
 };
@@ -65,7 +66,7 @@ export class UsersService {
       select: selectFull,
     });
     if (!data) {
-      throw await new NotFoundException(`User ${id} not founded`);
+      throw new NotFoundException(`User ${id} not founded`);
     }
     return data;
   }
