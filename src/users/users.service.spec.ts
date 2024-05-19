@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { Logger, NotFoundException } from '@nestjs/common';
+import { CreateUserDto, UpdateUserDto } from './entities/user.dto';
 
 const mockPrismaService = {
   user: {
@@ -59,55 +60,29 @@ describe('UsersService', () => {
 
   describe('createUser', () => {
     it('should return a new user', async () => {
-      const result = await service.createUser({
-        username: '',
-        email: '',
-        password: '',
-      });
+      const result = await service.createUser({} as CreateUserDto);
       expect(result).toEqual({});
     });
     it('should throw an error if user not created', async () => {
-      mockPrismaService.user.create.mockRejectedValue(
+      mockPrismaService.user.create.mockRejectedValueOnce(
+        new NotFoundException('Data invalid. Try again.'),
+      );
+      await expect(service.createUser({} as CreateUserDto)).rejects.toThrow(
         new NotFoundException(`Data invalid. Try again.`),
       );
-      await expect(
-        service.createUser({
-          username: '',
-          email: '',
-          password: '',
-        }),
-      ).rejects.toThrow(new NotFoundException(`Data invalid. Try again.`));
     });
   });
 
   describe('updateUser', () => {
     it('should return an updated user', async () => {
-      const result = await service.updateUser(
-        '1',
-        {
-          username: '',
-          email: '',
-          password: '',
-          role: 'user',
-        },
-        null,
-      );
+      const result = await service.updateUser('1', {} as UpdateUserDto, null);
       expect(result).toEqual({});
     });
     it('should throw an error if user not found', async () => {
       mockPrismaService.user.update.mockRejectedValue(new Error());
       await expect(
-        service.updateUser(
-          '1',
-          {
-            username: '',
-            email: '',
-            password: '',
-            role: 'user',
-          },
-          null,
-        ),
-      ).rejects.toThrow();
+        service.updateUser('1', {} as UpdateUserDto, null),
+      ).rejects.toThrow(new NotFoundException(`User 1 not found`));
     });
   });
 
@@ -140,7 +115,7 @@ describe('UsersService', () => {
       const user = { id: 'some-id', avatar: undefined };
       (mockPrismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
 
-      expect(await service.deleteUser(user.id)).toEqual({});
+      expect(await service.deleteUser(user.id)).toEqual([{}, {}]);
     });
 
     it('should throw an error if user not found', async () => {

@@ -1,8 +1,6 @@
 import { Club } from 'src/clubs/entities/club.interface.js';
 import { ImgData } from 'src/types/image.data';
 
-type Role = 'admin' | 'validator' | 'user';
-
 export class User {
   id: string;
   username: string;
@@ -10,7 +8,7 @@ export class User {
   password?: string;
   country?: string;
   avatar: Partial<ImgData> | null;
-  role: Role;
+  role: 'admin' | 'validator' | 'user';
   clubs?: Array<Partial<Club>>;
 }
 
@@ -20,5 +18,5 @@ export class SignUser {
   email?: string;
   password?: string;
   country?: string;
-  role: Role;
+  role: 'admin' | 'validator' | 'user';
 }

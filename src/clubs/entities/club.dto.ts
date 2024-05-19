@@ -1,28 +1,17 @@
-import { IsString, IsNumber, MinLength, IsOptional } from 'class-validator';
+import { ImgData } from 'src/types/image.data';
 
-export class CreateClubDto {
-  @IsString()
+export type CreateClubDto = {
   name: string;
-  @IsString()
   country: string;
-  @IsNumber()
   founded: number;
-  @IsOptional()
-  @IsString()
-  avatar: string;
-}
+  logo?: ImgData | null;
+};
 
-export class UpdateClubDto {
-  @IsOptional()
-  @IsString()
-  @MinLength(3, {
-    message: 'Title is too short',
-  })
-  name: string;
-  @IsString()
-  @IsOptional()
-  country: string;
-  @IsNumber()
-  @IsOptional()
-  founded: number;
-}
+export type UpdateClubDto = {
+  name?: string;
+  country?: string;
+  founded?: number;
+  logo?: ImgData | null;
+  description?: string;
+  state?: 'validated' | 'pending';
+};

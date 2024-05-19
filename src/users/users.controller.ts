@@ -19,7 +19,11 @@ import { CryptoService } from '../core/crypto/crypto.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesService } from '../core/files/files.service';
 import { ImgData } from '../types/image.data';
-import { UpdateUserDto, CreateUserDto } from './entities/user.dto';
+import {
+  UpdateUserDto,
+  CreateUserDto,
+  FilterUserDto,
+} from './entities/user.dto';
 import { UsersService } from './users.service';
 import { LoggedGuard } from '../core/auth/logged.guard';
 
@@ -42,6 +46,11 @@ export class UsersController {
     return this.usersService.findOneUser(id);
   }
 
+  @Get('filter')
+  filterCountry(@Body() data: FilterUserDto) {
+    return this.usersService.filterUsers(data);
+  }
+
   @UseGuards(LoggedGuard)
   @UseInterceptors(FileInterceptor('avatar'))
   @Patch(':id')
@@ -50,7 +59,7 @@ export class UsersController {
     @Body() data: UpdateUserDto,
     @UploadedFile(
       new ParseFilePipe({
-        validators: [new FileTypeValidator({ fileType: 'image/' })],
+        validators: [new FileTypeValidator({ fileType: 'image' })],
         fileIsRequired: false,
       }),
     )
